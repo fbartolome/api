@@ -17,22 +17,8 @@ module.exports = function(app){
       name: urlParts.query.name === undefined ? "" : urlParts.query.name,
       stock : stockVal
     };
-    console.log(searchData);
 
     Product.searchProducts(searchData, (err, data) => {
-      if(data){
-        res.status(200).json(data);
-      } else {
-        res.status(500).json({
-          success: false,
-          msg    : "error"
-        });
-      }
-    });
-  });
-
-  app.get('/products/stock', (req, res) => {
-    Product.getProductsWithStock((err, data) => {
       if(data){
         res.status(200).json(data);
       } else {

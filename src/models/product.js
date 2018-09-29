@@ -10,6 +10,7 @@ connection = mysql.createConnection({
 let productModel = {};
 
 productModel.searchProducts = (searchData, callback) => {
+    console.log(searchData);
   if(connection){
     var q = "SELECT * FROM products ";
 
@@ -71,11 +72,9 @@ productModel.insertProduct = (productData, callback) => {
       });
     }
 
-    console.log(connection.escape(productData.productname));
     connection.query(
       `SELECT * FROM products WHERE productname = ${connection.escape(productData.productname)}`,
       (err, row) => {
-        console.log(row.length);
         if(row == null || row.length === 0){
           connection.query(
             "INSERT INTO products SET ?", productData,

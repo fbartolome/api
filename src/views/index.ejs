@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title><%= title %></title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    </head>
+    <body>
+        <div class="row" style="margin-left: 30px; margin-top: 20px;text-align: center">
+            <div class="row">
+                <div class="col-sm-3"></div>
+                <div class="col-sm-5" style="text-align: center">
+                    <div class="form-group">
+                        <input class="form-control" id="search" placeholder="Buscar" value="<%= search %>" size="23">
+                    </div>
+                </div>
+                <div class="col-sm-1">
+                    <button class="btn btn-light" onclick="search()"><span class="glyphicon glyphicon-search" aria-hidden="true"></button>
+                </div>
+                <div class="col-sm-3"></div>
+            </div>
+            <div class="row" style="margin-left: 0;">
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="stock-ckeck" <% if(stockChecked){%> checked <%}%>>
+                    <label class="stock-check-label" for="stock-ckeck">Con stock</label>
+                    <input type="checkbox" class="form-check-input" id="no-stock-ckeck" <% if(noStockChecked){%> checked <%}%>>
+                    <label class="no-stock-check-label" for="no-stock-ckeck">Sin stock</label>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <!--<div class="col-sm-1"></div>-->
+            <div class="col-sm-9"  style="margin-left: 30px; margin-top: 20px;">
+                <div class="panel panel-default">
+                    <!-- Table -->
+                    <table class="table">
+                        <thead align="center">
+                            <tr>
+                                <th>Producto <span class="glyphicon glyphicon-triangle-top" aria-hidden="true"></span></th>
+                                <th>Stock <span class="glyphicon glyphicon-triangle-top" aria-hidden="true"></span></th>
+                                <th>Agregar Stock</th>
+                                <th>Quitar Stock</th>
+                                <th>Quitar Producto</th>
+                            </tr>
+                        </thead>
+                        <tbody  align="left">
+                            <% products.forEach(p => {%>
+                                <tr id="row <%=p.productid%>">
+                                    <td><%= p.productname %></td>
+                                    <td><%= p.stock %></td>
+                                    <td>
+                                        <input id="stock-to-add-<%=p.productid%>" type="text" size="4" style="margin-right: 3px;margin-left: 15px;">
+                                        <button type="button" class="btn btn-light" onclick="addStock(<%=p.productid%>)">
+                                            <span class="glyphicon glyphicon-triangle-top" aria-hidden="true"></span>
+                                        </button>
+                                    </td>
+                                    <td>
+                                        <input id="stock-to-take-<%=p.productid%>" type="text" size="4" style="margin-right: 3px;margin-left: 15px;">
+                                        <button type="button" class="btn btn-light" onclick="takeStock(<%=p.productid%>)">
+                                            <span class="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span>
+                                        </button>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-danger" onclick="deleteProduct(<%=p.productid%>)">
+                                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                        </button>
+                                    </td>
+                                </tr>
+                            <%})%>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!--<div class="col-sm-1"></div>-->
+            <div class="col-sm-2">
+                <form>
+                    <div class="row">
+                        <div class="col">
+                            <h3>Agregar producto</h3>
+                        </div>
+                        <div class="col">
+                            <input id="new-product-name" type="text" class="form-control" placeholder="Nombre del producto">
+                        </div>
+                        <div class="col" style="margin-top: 10px;">
+                            <button type="button" class="btn btn-success" onclick="addProduct()">
+                                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                            </button>
+                        </div>
+                        <div class="col" style="margin-top: 10px;">
+                            <div class="alert alert-danger" role="alert" style="visibility: hidden"
+                                 id="repeated-product-warning" style="margin-top: 10px;">El producto ya existe</div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <!--<div class="col-sm-1"></div>-->
+        </div>
+
+        <!-- Functions -->
+        <script>
+            function deleteProduct(pid){
+                axios.delete('/products/' + pid)
+                    .then(function (response) {
+                        document.getElementById('row ' + pid).remove();
+                    });
+            }
+
+            function addStock(pid){
+                var stockToAdd = parseInt(document.getElementById('stock-to-add-' + pid).value);
+                if(!isNaN(stockToAdd) && stockToAdd > 0){
+                    axios.put('/products/' + pid, {
+                        stock: stockToAdd
+                    })
+                        .then(function (response) {
+                            location.reload();
+                        });
+                }
+            }
+
+            function takeStock(pid){
+                var stockToAdd = parseInt(document.getElementById('stock-to-take-' + pid).value);
+                if(!isNaN(stockToAdd) && stockToAdd > 0){
+                    axios.put('/products/' + pid, {
+                        stock: stockToAdd * -1
+                    })
+                        .then(function (response) {
+                            location.reload();
+                        });
+                }
+            }
+
+            function addProduct(){
+                var name = document.getElementById('new-product-name').value;
+                if(name !== ""){
+                    axios.post('/products', {
+                        productname: name,
+                        stock: 0
+                    })
+                        .then(function (response){
+                            document.getElementById('search').value = "";
+                            document.getElementById('stock-ckeck').checked = false;
+                            document.getElementById('no-stock-ckeck').checked = false;
+                            window.location.href = "/"
+                        })
+                        .catch(function (error) {
+                            document.getElementById('repeated-product-warning').style.visibility = 'visible';
+                        });
+                }
+            }
+
+            function search(){
+                var search = document.getElementById('search').value;
+                var stockCheckboxChecked = document.getElementById('stock-ckeck').checked;
+                var noStockCheckboxChecked = document.getElementById('no-stock-ckeck').checked;
+                var query = "";
+
+                if(stockCheckboxChecked && !noStockCheckboxChecked){
+                    query =  "?search=" + search + "&stock=true";
+                } else if(noStockCheckboxChecked && !stockCheckboxChecked){
+                    query = "?search=" + search + "&stock=false";
+                } else {
+                    query =  "?search=" + search;
+                }
+                window.location.href = "/" + query;
+            }
+        </script>
+    </body>
+</html>
