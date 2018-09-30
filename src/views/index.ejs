@@ -44,32 +44,32 @@
             <table class="table">
                 <thead align="center">
                 <tr>
-                    <th>Producto <span class="glyphicon glyphicon-triangle-<%= ordering.product.direction %>"
+                    <th style="text-align: center">Producto <span class="glyphicon glyphicon-triangle-<%= ordering.product.direction %>"
                                        aria-hidden="true" style="color: <%= ordering.product.color %>"
                                        onclick="orderByProduct()"></span></th>
-                    <th>Stock <span class="glyphicon glyphicon-triangle-<%= ordering.stock.direction %>"
+                    <th style="text-align: center">Stock <span class="glyphicon glyphicon-triangle-<%= ordering.stock.direction %>"
                                     aria-hidden="true" style="color: <%= ordering.stock.color %>"
                                     onclick="orderByStock()"></span></th>
-                    <th>Agregar Stock</th>
-                    <th>Quitar Stock</th>
-                    <th>Quitar Producto</th>
+                    <th style="text-align: center">Agregar Stock</th>
+                    <th style="text-align: center">Quitar Stock</th>
+                    <th style="text-align: center">Quitar Producto</th>
                 </tr>
                 </thead>
-                <tbody align="left">
+                <tbody align="left" style="text-align: center">
                 <% products.forEach(p => { %>
                 <tr id="row <%= p.productid %>">
                     <td><%= p.productname %></td>
                     <td><%= p.stock %></td>
                     <td>
                         <input id="stock-to-add-<%= p.productid %>" type="text" size="4"
-                               style="margin-right: 3px;margin-left: 15px;">
+                               style="margin-right: 3px;">
                         <button type="button" class="btn btn-light" onclick="addStock(<%= p.productid %>)">
                             <span class="glyphicon glyphicon-triangle-top" aria-hidden="true"></span>
                         </button>
                     </td>
                     <td>
                         <input id="stock-to-take-<%= p.productid %>" type="text" size="4"
-                               style="margin-right: 3px;margin-left: 15px;">
+                               style="margin-right: 3px;">
                         <button type="button" class="btn btn-light" onclick="takeStock(<%= p.productid %>)">
                             <span class="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span>
                         </button>

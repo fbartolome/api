@@ -2,7 +2,7 @@ const host = 'localhost';
 const port = 3000;
 const dbuser = 'root';
 const dbpass = 'password';
-const database = 'clappspt';
+const database = 'clappsdb';
 
 module.exports = {
     host: host,

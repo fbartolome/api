@@ -1,4 +1,4 @@
-const url = require('url')
+const url = require('url');
 const Product = require('../models/product');
 
 module.exports = function (app) {

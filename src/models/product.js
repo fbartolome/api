@@ -58,7 +58,7 @@ productModel.searchProducts = (searchData, callback) => {
 
         q += order + " " + direction;
 
-        q = mysql.format(q, ['%' + searchData.name + '%']);
+        q = mysql.format(q, ["%" + searchData.name + "%"]);
 
         connection.query(
             q, (err, rows) => {
