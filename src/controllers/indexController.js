@@ -3,7 +3,7 @@ const url = require('url');
 const axios = require('axios');
 const config = require('../../config/config');
 
-const index = (req, res) => {
+const indexController = (req, res) => {
     var urlParts = url.parse(req.url, true);
 
     var searchVal = urlParts.query.search;
@@ -74,6 +74,6 @@ function setOrderingView(orderData, orderVarVal, orderDirVal) {
 }
 
 module.exports = {
-    index
+    index: indexController
 };
 

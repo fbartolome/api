@@ -1,6 +1,6 @@
 const url = require('url');
 
-const IndexController = require('../controllers/index');
+const IndexController = require('../controllers/indexController');
 
 module.exports = function (app) {
 

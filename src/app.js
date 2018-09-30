@@ -18,7 +18,7 @@ app.use(bodyParser.urlencoded({extended: false}));
 
 // routes
 require('./routes/productRoutes')(app);
-require('./routes/index')(app);
+require('./routes/indexRoutes')(app);
 
 // static files
 app.use(express.static(path.join(__dirname, 'public')));
