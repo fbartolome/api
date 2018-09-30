@@ -35,68 +35,122 @@ module.exports = function (app) {
     });
 
     app.post('/products', (req, res) => {
-        const productData = {
-            productname: req.body.productname,
-            stock: req.body.stock
-        };
+        // validations
+        if (req.body.stock === undefined || req.body.productname === undefined) {
+            return res.status(422).json({
+                success: false,
+                msg: "body parameter absent",
+            });
+        }
 
-        Product.insertProduct(productData, (err, data) => {
-            if (data) {
-                if (data.msg === "negative stock") {
-                    res.status(400).json({
-                        success: false,
-                        msg: "negative stock",
-                    });
-                } else if (data.msg === "already exists") {
-                    res.status(400).json({
+        var stock = parseInt(req.body.stock);
+        if (isNaN(stock)) {
+            return res.status(422).json({
+                success: false,
+                msg: "stock value is not a number",
+            });
+        }
+        if (stock < 0) {
+            return res.status(422).json({
+                success: false,
+                msg: "negative stock",
+            });
+        }
+
+        Product.getProductByName(req.body.productname, (err, data) => {
+            if (err) {
+                return res.status(500).json({
+                    success: false,
+                    msg: "error"
+                })
+            } else {
+                if (data.length !== 0) {
+                    return res.status(422).json({
                         success: false,
                         msg: "product already exists",
                     });
-                } else {
+                }
+            }
+
+            const productData = {
+                productname: req.body.productname,
+                stock: stock
+            };
+
+            Product.insertProduct(productData, (err, data) => {
+                if (data) {
                     res.json({
                         success: true,
                         msg: "product inserted",
                         data: data
                     });
+                } else {
+                    res.status(500).json({
+                        success: false,
+                        msg: "error"
+                    })
                 }
-            } else {
-                res.status(500).json({
-                    success: false,
-                    msg: "error"
-                })
-            }
+            });
         });
-
     });
 
     app.put('/products/:id', (req, res) => {
-        const stockData = {
-            productid: req.params.id,
-            stock: req.body.stock
-        };
+        // validations
+        if (req.body.stock === undefined) {
+            return res.status(422).json({
+                success: false,
+                msg: "body parameter absent",
+            });
+        }
 
-        Product.updateStock(stockData, (err, data) => {
-            if (data) {
-                if (data.msg === "success") {
-                    res.json({
-                        success: true,
-                        msg: "stock updated",
-                        data: data
-                    });
-                } else {
-                    res.status(404).json({
-                        success: false,
-                        msg: "product not found",
-                        data: data
-                    });
-                }
-            } else {
-                res.status(500).json({
+        var stock = parseInt(req.body.stock);
+        if (isNaN(stock)) {
+            return res.status(422).json({
+                success: false,
+                msg: "stock value is not a number",
+            });
+        }
+
+        Product.getProductById(req.params.id, (err, row) => {
+            if (err) {
+                return res.status(500).json({
                     success: false,
                     msg: "error"
                 })
+            } else {
+                if (row.length === 0) {
+                    return res.status(422).json({
+                        success: false,
+                        msg: "product doesn't exist",
+                    });
+                }
+
+                var newStock = row[0].stock + stock <= 0 ? 0 : row[0].stock + stock;
+
+                const stockData = {
+                    productid: req.params.id,
+                    stock: newStock
+                };
+
+                Product.updateStock(stockData, (err, data) => {
+                    if (data) {
+                        if (data.msg === "success") {
+                            res.json({
+                                success: true,
+                                msg: "stock updated",
+                                data: data
+                            });
+                        }
+                    } else {
+                        res.status(500).json({
+                            success: false,
+                            msg: "error"
+                        })
+                    }
+                });
             }
         });
+
     });
 
     app.delete('/products/:id', (req, res) => {

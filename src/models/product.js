@@ -10,6 +10,36 @@ connection = mysql.createConnection({
 
 let productModel = {};
 
+productModel.getProductByName = (productname, callback) => {
+    if (connection) {
+        connection.query(
+            mysql.format(`SELECT * FROM products WHERE productname = ? `, [productname]),
+            (err, row) => {
+                if (err) {
+                    callback(err, null);
+                } else {
+                    callback(null, row);
+                }
+            }
+        );
+    }
+};
+
+productModel.getProductById = (productid, callback) => {
+    if (connection) {
+        connection.query(
+            mysql.format(`SELECT * FROM products WHERE productid = ?`, [productid]),
+            (err, row) => {
+                if (err) {
+                    callback(err, null);
+                } else {
+                    callback(null, row);
+                }
+            }
+        );
+    }
+};
+
 productModel.searchProducts = (searchData, callback) => {
     if (connection) {
         var q = "SELECT * FROM products WHERE productname LIKE ? ";
@@ -30,8 +60,6 @@ productModel.searchProducts = (searchData, callback) => {
 
         q = mysql.format(q, ['%' + searchData.name + '%']);
 
-        console.log(q);
-
         connection.query(
             q, (err, rows) => {
                 if (err) {
@@ -46,68 +74,38 @@ productModel.searchProducts = (searchData, callback) => {
 
 productModel.insertProduct = (productData, callback) => {
     if (connection) {
-        if (productData.stock < 0) {
-            return callback(null, {
-                "msg": "negative stock"
-            });
-        }
-
         connection.query(
-            mysql.format(`SELECT * FROM products WHERE productname = ?`, [productData.productname]),
-            (err, row) => {
-                if (row == null || row.length === 0) {
-                    connection.query(
-                        "INSERT INTO products SET ?", productData,
-                        (err, result) => {
-                            if (err) {
-                                callback(err, null);
-                            } else {
-                                callback(null, {
-                                    "msg": "success",
-                                    "insertId": result.insertId
-                                });
-                            }
-                        }
-                    );
+            "INSERT INTO products SET ?", productData,
+            (err, result) => {
+                if (err) {
+                    callback(err, null);
                 } else {
                     callback(null, {
-                        "msg": "already exists"
+                        "msg": "success",
+                        "insertId": result.insertId
                     });
                 }
             }
-        )
+        );
     }
 };
 
 productModel.updateStock = (stockData, callback) => {
     if (connection) {
         connection.query(
-            mysql.format(`SELECT * FROM products WHERE productid = ?`, [stockData.productid]),
-            (err, row) => {
-                if (row != null && row.length === 1) {
-                    var newStock = row[0].stock + stockData.stock <= 0 ? 0 : row[0].stock + stockData.stock;
-
-                    connection.query(
-                        mysql.format(`UPDATE products SET stock = ? ` +
-                            `WHERE productid = ?`, [newStock, stockData.productid]),
-                        (err, result) => {
-                            if (err) {
-                                callback(err, null);
-                            } else {
-                                callback(null, {
-                                    "msg": "success",
-                                    "stock": result.stock
-                                });
-                            }
-                        }
-                    );
+            mysql.format(`UPDATE products SET stock = ? ` +
+                `WHERE productid = ?`, [stockData.stock, stockData.productid]),
+            (err, result) => {
+                if (err) {
+                    callback(err, null);
                 } else {
                     callback(null, {
-                        "msg": "fail"
+                        "msg": "success",
+                        "stock": result.stock
                     });
                 }
             }
-        )
+        );
     }
 };
 
